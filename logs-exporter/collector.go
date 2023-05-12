@@ -47,7 +47,7 @@ func (m *metrics) Describe(ch chan<- *prometheus.Desc) {
 	m.duration.Describe(ch)
 }
 
-func (m *metrics) collect(ch chan<- prometheus.Metric) error {
+func (m *metrics) Collect(ch chan<- prometheus.Metric) error {
 
 	var path string = "access.log"
 	t, err := tail.TailFile(path, tail.Config{Follow: true, ReOpen: true})

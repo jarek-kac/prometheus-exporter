@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	logsexporter "github.com/jarek-kac/prometheus-exporter/logs-exporter"
-
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/version"
 )
 
 func main() {
@@ -25,29 +23,11 @@ func main() {
 	flag.Parse()
 	fmt.Print(*targetHost, *targetPort, targetPath, promPort, logPath)
 
-	go logsexporter.GetLogMetrics(*logPath)
+	exporter := logsexporter.NewMetrics()
+	prometheus.MustRegister(exporter)
+	prometheus.MustRegister(version.NewCollector("apache_exporter"))
 
-	recordMetrics()
-	//reg := prometheus.NewRegistry()
-
-	//promHandler := promhttp.HandlerFor(reg, promhttp.HandlerOpts{})
 	http.Handle("/metrics", promhttp.Handler())
-	//http.Handle("/metrics", promHandler)
+
 	log.Fatal(http.ListenAndServe(*promPort, nil))
 }
-
-func recordMetrics() {
-	go func() {
-		for {
-			opsProcessed.Inc()
-			time.Sleep(2 * time.Second)
-		}
-	}()
-}
-
-var (
-	opsProcessed = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "myapp_processed_ops_total",
-		Help: "The total number of processed events",
-	})
-)

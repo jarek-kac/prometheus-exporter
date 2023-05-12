@@ -23,8 +23,8 @@ func main() {
 	flag.Parse()
 	fmt.Print(*targetHost, *targetPort, targetPath, promPort, logPath)
 
-	exporter := logsexporter.NewMetrics()
-	prometheus.MustRegister(exporter)
+	exporte := logsexporter.NewMetrics()
+	prometheus.MustRegister(exporte)
 	prometheus.MustRegister(version.NewCollector("apache_exporter"))
 
 	http.Handle("/metrics", promhttp.Handler())

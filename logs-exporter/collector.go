@@ -11,14 +11,14 @@ import (
 
 var exp = regexp.MustCompile(`^(?P<remote>[^ ]*) (?P<host>[^ ]*) (?P<user>[^ ]*) \[(?P<time>[^\]]*)\] \"(?P<method>\w+)(?:\s+(?P<path>[^\"]*?)(?:\s+\S*)?)?\" (?P<status_code>[^ ]*) (?P<size>[^ ]*)(?:\s"(?P<referer>[^\"]*)") "(?P<agent>[^\"]*)" (?P<urt>[^ ]*)$`)
 
-type metrics struct {
+type Metrics struct {
 	size     prometheus.Counter
 	duration *prometheus.HistogramVec
 	requests *prometheus.CounterVec
 }
 
-func NewMetrics() *metrics {
-	m := &metrics{
+func NewMetrics() *Metrics {
+	m := &Metrics{
 		size: prometheus.NewCounter(prometheus.CounterOpts{
 			Namespace: "nginx",
 			Name:      "size_bytes_total",
@@ -41,13 +41,13 @@ func NewMetrics() *metrics {
 	return m
 }
 
-func (m *metrics) Describe(ch chan<- *prometheus.Desc) {
+func (m *Metrics) Describe(ch chan<- *prometheus.Desc) {
 	m.size.Describe(ch)
 	m.requests.Describe(ch)
 	m.duration.Describe(ch)
 }
 
-func (m *metrics) Collect(ch chan<- prometheus.Metric) {
+func (m *Metrics) Collect(ch chan<- prometheus.Metric) {
 
 	var path string = "access.log"
 	t, err := tail.TailFile(path, tail.Config{Follow: true, ReOpen: true})
